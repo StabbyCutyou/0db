@@ -71,3 +71,4 @@ Roadmap
 * Protobuffs interface
 * Clustering
 * CRDTs
+* Officially move to using gb
