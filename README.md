@@ -28,7 +28,7 @@ Interacting with 0db
 
 0db comes provided with a simple REST interface which accepts reads and writes over HTTP. Currently, 0db provides a single endpoint for key-value reads and writes, which is located at:
 
-* http://127.0.0.1:5050/v1/{key_name}
+* 127.0.0.1:5050/v1/{key_name}
 
 ## Storing Data
 
