@@ -26,19 +26,43 @@ What will 0db be?
 Interacting with 0db
 ====================
 
-0db comes provided with a simple REST interface which accepts reads and writes over HTTP.
+0db comes provided with a simple REST interface which accepts reads and writes over HTTP. Currently, 0db provides a single endpoint for key-value reads and writes, which is located at:
+
+* http://127.0.0.1:5050/v1/{key_name}
 
 ## Storing Data
 
-You can store a value securely in 0db by issuing a POST to {zerodb_host}:5050/v1/{key_name}, with the data to store residing in the request body. Currently, 0db is a "last-write-wins" system, so take care not to overwrite your keys.
+You can store a value securely in 0db by issuing a POST with the data to store residing in the request body. Currently, 0db is a "last-write-wins" system, so take care not to overwrite your keys.
 
-The response to this call with be a JSON object containing the data that was stored, along with the key it was stored at.
+The response to this call with be a JSON object containing the data that was stored, along with the key it was stored at:
+
+```javascript
+{"key":"xxx", "data":"yyy"}
+```
 
 ## Retrieving Data
 
-You can retrieve a value from 0db by issuing a GET to {zerodb_host}:5050/v1/{key_name}. It will return to you a JSON object with the key and data available for that key.
+You can retrieve a value from 0db by issuing a GET.
 
-As 0db is an eventually consistent system, there is no gaurentee that your data will be available to be read at the time your request it. In this case, you will receive a result with the key, but an empty data field.
+It will return to you a JSON object with the key and data available for that key.
+
+```javascript
+{"key":"xxx", "data":"yyy"}
+```
+
+As 0db is an eventually consistent system, there is no gaurentee that your data will be available to be read at the time your request it. In this case, you will receive a response like so:
+
+```javascript
+{"key":"xxx", "data":""}
+```
+
+## Errors
+
+If the system cannot process the request, you'll receive a response with the appropriate status code, and a JSON object containing the error, like so
+
+```javascript
+{"error":"It failed because reasons"}
+```
 
 Roadmap
 =======
@@ -46,4 +70,4 @@ Roadmap
 * Official Benchmarks
 * Protobuffs interface
 * Clustering
-* Configuration options
+* CRDTs
