@@ -1,13 +1,16 @@
 package server
 
-import "github.com/StabbyCutyou/0db/consensus"
+import (
+	"github.com/StabbyCutyou/0db/config"
+	"github.com/StabbyCutyou/0db/consensus"
+)
 
 type ZeroDBServer struct {
 	consensus *consensus.Slaxos
 }
 
-func New() *ZeroDBServer {
-	return &ZeroDBServer{consensus: consensus.NewSlaxos()}
+func New(cfg *config.Config) *ZeroDBServer {
+	return &ZeroDBServer{consensus: consensus.NewSlaxos(cfg.Membership)}
 }
 
 func (z *ZeroDBServer) Write(key string, data string, ack bool) error {

@@ -1,12 +1,17 @@
 package consensus
 
 import (
+	"github.com/Sirupsen/logrus"
+	//"github.com/golang/protobuf/proto"
+	"github.com/StabbyCutyou/0db/config"
 	"hash/fnv"
 	"os/exec"
 )
 
 type Slaxos struct {
-	Cluster map[uint64]ServerEntry
+	receivePort  int
+	dispatchPort int
+	membership   *Membership
 }
 
 type ServerEntry struct {
@@ -14,23 +19,38 @@ type ServerEntry struct {
 	Address string
 }
 
-func NewSlaxos() *Slaxos {
-	s := &Slaxos{}
-	s.initCluster()
-	return s
+func NewSlaxos(cfg config.MembershipConfig) *Slaxos {
+	return &Slaxos{
+		membership:   NewMembershipListener(cfg.MemberPort),
+		receivePort:  cfg.ReceivePort,
+		dispatchPort: cfg.DispatchPort,
+	}
 }
 
-func (s *Slaxos) initCluster() {
-	cluster := make(map[uint64]ServerEntry)
-	cluster[0] = ServerEntry{Id: 0, Address: "localhost"}
-	s.Cluster = cluster
+func (s *Slaxos) JoinCluster(address string) {
+	logrus.Infof("About to join to Cluster at address %s", address)
+	nodesFound, err := s.membership.JoinCluster(address)
+	if err != nil {
+		logrus.Errorf("Unable to join Cluster at address %s", address)
+	} else {
+		logrus.Infof("Joined cluster at %s, found %d other members", address, nodesFound)
+	}
+}
+
+func (s *Slaxos) LeaveCluster() {
+	logrus.Info("Leaving Cluster")
+	err := s.membership
+	if err != nil {
+		logrus.Error("Error leaving Cluster")
+		logrus.Error(err)
+	}
 }
 
 func (s *Slaxos) Write(key string, data string, ack bool) error {
 	// First, hash the key
 	keyHash := s.hashKey(key)
 	// Now, modulus by the number of servers in the cluster to determine where the write goes
-	nodeId := keyHash % uint64(len(s.Cluster))
+	nodeId := s.calculateNodeIndex(keyHash)
 	// Now we know the node, send the write command to that node
 	return s.writeToNode(nodeId, key, data, ack)
 }
@@ -39,15 +59,19 @@ func (s *Slaxos) Read(key string) (string, error) {
 	// First, hash the key
 	keyHash := s.hashKey(key)
 	// Now, modulus by the number of servers in the cluster to determine where the write goes
-	nodeId := keyHash % uint64(len(s.Cluster))
+	nodeId := s.calculateNodeIndex(keyHash)
 	// Now we know the node, send the read command to that node and return the result
 	return s.readFromNode(nodeId, key)
 }
 
-func (s *Slaxos) writeToNode(node uint64, key string, data string, ack bool) error {
+func (s *Slaxos) calculateNodeIndex(keyHash uint64) uint64 {
+	return keyHash % uint64(s.membership.ClusterSize())
+}
+
+func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) error {
 	// TODO this functionality should live in a dispacher...
 	// Get the address of the node
-	address := s.Cluster[node].Address
+	address := s.membership.MemberAt(nodeId)
 	if address == "localhost" {
 		// The local node owns it
 		cmd := exec.Command("echo", data, "> /dev/null")
@@ -64,10 +88,10 @@ func (s *Slaxos) writeToNode(node uint64, key string, data string, ack bool) err
 	}
 }
 
-func (s *Slaxos) readFromNode(node uint64, key string) (string, error) {
+func (s *Slaxos) readFromNode(nodeId uint64, key string) (string, error) {
 	// TODO this functionality should live in a dispacher...
 	// Get the address of the node
-	address := s.Cluster[node].Address
+	address := s.membership.MemberAt(nodeId)
 	if address == "localhost" {
 		// The local node owns it
 		cmd := exec.Command("cat", "/dev/null")

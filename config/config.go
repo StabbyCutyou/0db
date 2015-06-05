@@ -9,11 +9,18 @@ import (
 const FLAG_CONFIG = "c"
 
 type Config struct {
-	Rest Rest
+	Rest       RestConfig
+	Membership MembershipConfig
 }
 
-type Rest struct {
+type RestConfig struct {
 	HttpPort int
+}
+
+type MembershipConfig struct {
+	MemberPort   int
+	ReceivePort  int
+	DispatchPort int
 }
 
 func GetConfig() (*Config, error) {

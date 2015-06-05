@@ -16,7 +16,7 @@ func main() {
 		logrus.Error(err)
 	}
 
-	zdb := server.New()
+	zdb := server.New(cfg)
 	// This will block the main thread
 	httpendpoint.Listen(cfg.Rest.HttpPort, zdb)
 }
