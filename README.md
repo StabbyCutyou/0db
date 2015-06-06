@@ -6,7 +6,11 @@ It's 0% a database!
 Disclaimer
 ==============
 
-0db is currently in open-alpha. The interfaces, both internal and external, are likely to change. You should avoid using this in production for anything critical to the business until the initial v1.0.0 release
+0db is currently in open-alpha. The interfaces, both internal and external, are likely to change. You should avoid using this in production for anything critical to the business until the initial v1.0.0 release.
+
+0db is in no way affiliated with [ZeroDB](http://www.zerodb.io), a Database Encryption Query Protocol. Any similarities are entirely coincidental.
+
+0db is in no way affiliated with [Zero-db](http://www.zero-db.com), a "trip hop, jazz and fusion" musical duo. Any similarities are entirely coincidental.
 
 What is 0db
 ================
