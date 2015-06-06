@@ -1,0 +1,6 @@
+package message;
+
+message AdminMessage    {
+   required string command = 1;
+   required string message = 2;
+}

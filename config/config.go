@@ -21,6 +21,7 @@ type MembershipConfig struct {
 	MemberPort   int
 	ReceivePort  int
 	DispatchPort int
+	AdminPort    int
 }
 
 func GetConfig() (*Config, error) {

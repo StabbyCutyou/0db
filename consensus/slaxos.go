@@ -2,8 +2,8 @@ package consensus
 
 import (
 	"github.com/Sirupsen/logrus"
-	//"github.com/golang/protobuf/proto"
 	"github.com/StabbyCutyou/0db/config"
+	"github.com/StabbyCutyou/0db/message"
 	"hash/fnv"
 	"os/exec"
 )
@@ -12,6 +12,7 @@ type Slaxos struct {
 	receivePort  int
 	dispatchPort int
 	membership   *Membership
+	admin        *Admin
 }
 
 type ServerEntry struct {
@@ -22,8 +23,24 @@ type ServerEntry struct {
 func NewSlaxos(cfg config.MembershipConfig) *Slaxos {
 	return &Slaxos{
 		membership:   NewMembershipListener(cfg.MemberPort),
+		admin:        NewAdminListener(cfg.AdminPort),
 		receivePort:  cfg.ReceivePort,
 		dispatchPort: cfg.DispatchPort,
+	}
+}
+
+func (s *Slaxos) ProcessAdminCommands() {
+	for {
+		data := s.admin.CommandQueue.Dequeue()
+		if data != nil {
+			msg := data.(message.AdminMessage)
+			switch *msg.Command {
+			case "JoinCluster":
+				s.JoinCluster(*msg.Message)
+			case "LeaveCluster":
+				s.LeaveCluster()
+			}
+		}
 	}
 }
 
