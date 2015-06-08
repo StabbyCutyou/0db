@@ -36,7 +36,7 @@ To run 0db, simply build and run the contents of the server/ directory in the 0d
 
 ### Admin Client
 
-0db ships with an Admin tool, which connects to the local node over a specific port, and issues commands.
+0db ships with an Admin tool, which connects to the local node over a specific port, and issues commands. Each command can optionally set the "-p" flag, to use a port other than the default.
 
 #### Join Cluster
 
