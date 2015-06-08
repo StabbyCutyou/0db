@@ -1,22 +1,27 @@
-package server
+package main
 
 import (
-	"github.com/StabbyCutyou/0db/config"
-	"github.com/StabbyCutyou/0db/consensus"
+	"github.com/Sirupsen/logrus"
+	"github.com/StabbyCutyou/0db/server/config"
+	httpendpoint "github.com/StabbyCutyou/0db/server/endpoints/http/v1"
+	"github.com/StabbyCutyou/0db/server/node"
 )
 
-type ZeroDBServer struct {
-	consensus *consensus.Slaxos
+func main() {
+	logrus.SetLevel(logrus.DebugLevel)
+	bootNode()
 }
 
-func New(cfg *config.Config) *ZeroDBServer {
-	return &ZeroDBServer{consensus: consensus.NewSlaxos(cfg.Membership)}
-}
+// TODO Refactor this to live under the node package?
+func bootNode() {
+	logrus.Info("Booting 0DB - The database that is 0% a database!")
+	cfg, err := config.GetConfig()
 
-func (z *ZeroDBServer) Write(key string, data string, ack bool) error {
-	return z.consensus.Write(key, data, ack)
-}
+	if err != nil {
+		logrus.Error(err)
+	}
 
-func (z *ZeroDBServer) Read(key string) (string, error) {
-	return z.consensus.Read(key)
+	zdb := node.New(cfg)
+	// This will block the main thread
+	httpendpoint.Listen(cfg.Rest.HttpPort, zdb)
 }
