@@ -30,6 +30,28 @@ What will 0db be?
 Interacting with 0db
 ====================
 
+### Server
+
+To run 0db, simply build and run the contents of the server/ directory in the 0db package root. You can configure various settings in the config file, located in config/0db.cfg, relative to where 0db is being run.
+
+### Admin Client
+
+0db ships with an Admin tool, which connects to the local node over a specific port, and issues commands.
+
+#### Join Cluster
+
+```bash
+./admin -j "address:port"
+```
+
+#### Leave Cluster
+
+```
+./admin -l
+```
+
+### Rest Clients
+
 0db comes provided with a simple REST interface which accepts reads and writes over HTTP. Currently, 0db provides a single endpoint for key-value reads and writes, which is located at:
 
 * 127.0.0.1:5050/v1/{key_name}
@@ -72,7 +94,7 @@ Roadmap
 =======
 
 * Official Benchmarks
-* Protobuffs interface
-* Clustering
+* Protobuffs client interface
+* Clustered Reads and Writes
 * CRDTs
 * Officially move to using gb
