@@ -158,7 +158,7 @@ func (s *Slaxos) Read(key string) (string, error) {
 }
 
 func (s *Slaxos) calculateNodeIndex(keyHash uint64) uint64 {
-	return keyHash % uint64(len(s.members.Members()))
+	return keyHash % uint64(s.members.NumMembers())
 }
 
 func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) error {
