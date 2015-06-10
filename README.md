@@ -20,7 +20,7 @@ At the moment, not much. As an open-alpha offering which is still under developm
 A word about Eventual Consistency
 =================================
 
-0db makes no gaurentees about the availability of your data at the time you request it. You should take care to design your system to be resilient to this aspect of 0db.
+0db makes no guarantees about the availability of your data at the time you request it. You should take care to design your system to be resilient to this aspect of 0db.
 
 What will 0db be?
 =================
@@ -76,7 +76,7 @@ It will return to you a JSON object with the key and data available for that key
 {"key":"xxx", "data":"yyy"}
 ```
 
-As 0db is an eventually consistent system, there is no gaurentee that your data will be available to be read at the time your request it. In this case, you will receive a response like so:
+As 0db is an eventually consistent system, there is no guarantee that your data will be available to be read at the time your request it. In this case, you will receive a response like so:
 
 ```javascript
 {"key":"xxx", "data":""}
