@@ -46,22 +46,6 @@ func NewConnectionList(conf *config.MembershipConfig) *ConnectionList {
 	}
 }
 
-// When a new node joins the list, open a connection to/from it
-func (cl *ConnectionList) NotifyJoin(n *memberlist.Node) {
-	logrus.Info("NODE JOINED ", n)
-	//cl.Lock()
-	//defer cl.Unlock()
-	//logrus.Infof("Adding read connection %s", n.Addr.String())
-	//conn, err := net.Dial("tcp", writer)
-	//if err != nil {
-	//	logrus.Error(err)
-	//	// Bail out?
-	//} else {
-	//	// Open read connect
-	//
-	//}
-}
-
 // TODO ported from splitter, needs work
 func readFromConnection(reader net.Conn, buffer []byte) (int, error) {
 	bytesLen, err := reader.Read(buffer)
@@ -117,6 +101,22 @@ func handleReadConnection(conn net.Conn) {
 	//	if bytesLen > 0 && (err == nil || (err != nil && err.Error() == "EOF")) {
 	//		readQueue.Enqueue(dataBuffer)
 	//	}
+	//}
+}
+
+// When a new node joins the list, open a connection to/from it
+func (cl *ConnectionList) NotifyJoin(n *memberlist.Node) {
+	logrus.Info("NODE JOINED ", n)
+	//cl.Lock()
+	//defer cl.Unlock()
+	//logrus.Infof("Adding read connection %s", n.Addr.String())
+	//conn, err := net.Dial("tcp", writer)
+	//if err != nil {
+	//	logrus.Error(err)
+	//	// Bail out?
+	//} else {
+	//	// Open read connect
+	//
 	//}
 }
 

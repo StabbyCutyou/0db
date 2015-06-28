@@ -10,7 +10,7 @@ type ZeroDBNode struct {
 }
 
 func New(cfg *config.Config) *ZeroDBNode {
-	return &ZeroDBNode{consensus: consensus.NewSlaxos(cfg.Membership)}
+	return &ZeroDBNode{consensus: consensus.NewSlaxos(&cfg.Membership)}
 }
 
 func (z *ZeroDBNode) Write(key string, data string, ack bool) error {

@@ -19,7 +19,7 @@ type Slaxos struct {
 	dispatchPort   int
 	adminPort      int
 	members        *memberlist.Memberlist
-	connectionList ConnectionList
+	connectionList *ConnectionList
 }
 
 type ServerEntry struct {
@@ -27,18 +27,20 @@ type ServerEntry struct {
 	Address string
 }
 
-func NewSlaxos(cfg config.MembershipConfig) *Slaxos {
+func NewSlaxos(cfg *config.MembershipConfig) *Slaxos {
+	memList, connectionList := newMemberlist(cfg)
 	s := Slaxos{
-		members:      newMemberlist(cfg.MemberPort),
-		receivePort:  cfg.ReceivePort,
-		dispatchPort: cfg.DispatchPort,
-		adminPort:    cfg.AdminPort,
+		members:        memList,
+		connectionList: connectionList,
+		receivePort:    cfg.ReceivePort,
+		dispatchPort:   cfg.DispatchPort,
+		adminPort:      cfg.AdminPort,
 	}
 	s.startAdminListener(cfg.AdminPort)
 	return &s
 }
 
-func newMemberlist(memberPort int) *memberlist.Memberlist {
+func newMemberlist(cfg *config.MembershipConfig) (*memberlist.Memberlist, *ConnectionList) {
 	mListCfg := memberlist.DefaultLANConfig()
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -47,7 +49,9 @@ func newMemberlist(memberPort int) *memberlist.Memberlist {
 		hostname = "localhostfail"
 	}
 	mListCfg.Name = hostname
-	mListCfg.BindPort = memberPort
+	mListCfg.BindPort = cfg.MemberPort
+	connList := NewConnectionList(cfg)
+	mListCfg.Events = connList
 
 	logrus.Info("Creating Membership Listener")
 	list, err := memberlist.Create(mListCfg)
@@ -57,7 +61,7 @@ func newMemberlist(memberPort int) *memberlist.Memberlist {
 		logrus.Error(err)
 	}
 
-	return list
+	return list, connList
 }
 
 func (s *Slaxos) startAdminListener(adminPort int) {
