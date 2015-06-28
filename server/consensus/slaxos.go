@@ -15,10 +15,11 @@ import (
 )
 
 type Slaxos struct {
-	receivePort  int
-	dispatchPort int
-	adminPort    int
-	members      *memberlist.Memberlist
+	receivePort    int
+	dispatchPort   int
+	adminPort      int
+	members        *memberlist.Memberlist
+	connectionList ConnectionList
 }
 
 type ServerEntry struct {

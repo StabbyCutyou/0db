@@ -1,0 +1,7 @@
+[rest]
+  httpport=5060
+[membership]
+  memberport=6060
+  receiveport=6071
+  dispatchport=6072
+  adminport=6073
