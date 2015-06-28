@@ -1,0 +1,6 @@
+package message;
+
+message DistributedWrite    {
+   required string key = 1;
+   required string data = 2;
+}

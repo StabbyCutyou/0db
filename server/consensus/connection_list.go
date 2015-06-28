@@ -3,7 +3,9 @@ package consensus
 import (
 	"encoding/binary"
 	"github.com/Sirupsen/logrus"
+	"github.com/StabbyCutyou/0db/message"
 	"github.com/StabbyCutyou/0db/server/config"
+	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/memberlist"
 	"net"
 	"os"
@@ -104,7 +106,14 @@ func handleReadConnection(conn net.Conn) {
 
 		if bytesLen > 0 && (err == nil || (err != nil && err.Error() == "EOF")) {
 			// We now have a message in the dataButter, we should handle it
-			logrus.Info("This is where i'd write")
+			msg := &message.DistributedWrite{}
+			err := proto.Unmarshal(dataBuffer, msg)
+			if err != nil || msg == nil {
+				// Error decoding
+				logrus.Error("Error trying to unmarshall")
+				logrus.Error(err)
+			}
+			logrus.Info("This is where i'd write ", msg)
 		}
 	}
 }

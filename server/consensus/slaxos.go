@@ -4,6 +4,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/StabbyCutyou/0db/message"
 	"github.com/StabbyCutyou/0db/server/config"
+	"github.com/StabbyCutyou/0db/util"
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/memberlist"
 	"hash/fnv"
@@ -170,9 +171,10 @@ func (s *Slaxos) calculateNodeIndex(keyHash uint64) uint64 {
 func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) error {
 	// TODO this functionality should live in a dispacher...
 	// Get the address of the node
-	address := s.members.Members()[nodeId].Addr.String()
-	if address == "localhost" {
+	chosenNode := s.members.Members()[nodeId]
+	if chosenNode.Addr.String() == "localhost" {
 		// The local node owns it
+		logrus.Debug("Writing to local storage")
 		cmd := exec.Command("echo", data, "> /dev/null")
 		if ack == true {
 			return cmd.Run()
@@ -181,9 +183,23 @@ func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) e
 			return nil
 		}
 	} else {
+		logrus.Debug("Writing to remote storage")
 		// Network send the write
 		// TODO support clustering
-		return nil
+		msg := &message.DistributedWrite{Key: &key, Data: &data}
+
+		msgBytes, err := proto.Marshal(msg)
+		// TODO don't hardcode header size
+		toWriteLen := util.UInt16ToByteArray(uint16(len(msgBytes)), util.MessageSizeToBitLength(4096))
+		logrus.Error(msgBytes)
+		if err != nil {
+			return err
+		}
+		toWrite := append(toWriteLen, msgBytes...)
+		logrus.Error("ABOUT TO WRITE")
+		logrus.Error(toWrite)
+		_, err = s.connectionList.dispatchConnections[chosenNode].Write(toWrite)
+		return err
 	}
 }
 

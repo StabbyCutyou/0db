@@ -7,6 +7,7 @@ Package message is a generated protocol buffer package.
 
 It is generated from these files:
 	admin_message.proto
+	distributed_write.proto
 
 It has these top-level messages:
 	AdminMessage
