@@ -168,13 +168,26 @@ func (s *Slaxos) calculateNodeIndex(keyHash uint64) uint64 {
 	return keyHash % uint64(s.members.NumMembers())
 }
 
+func isLocalInterface(address string) bool {
+	host, _ := os.Hostname()
+	addrs, _ := net.LookupIP(host)
+	for _, addr := range addrs {
+		if ipv4 := addr.To4(); ipv4 != nil {
+			if ipv4.String() == address {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) error {
 	// TODO this functionality should live in a dispacher...
 	// Get the address of the node
 	chosenNode := s.members.Members()[nodeId]
 	logrus.Debug("ADDR IS")
 	logrus.Debug(chosenNode.Addr.String())
-	if chosenNode.Addr.String() == "localhost" {
+	if isLocalInterface(chosenNode.Addr.String()) {
 		// The local node owns it
 		logrus.Debug("Writing to local storage")
 		cmd := exec.Command("echo", data, "> /dev/null")
