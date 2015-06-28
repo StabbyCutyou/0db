@@ -132,7 +132,12 @@ func (cl *ConnectionList) NotifyJoin(n *memberlist.Node) {
 		defer cl.Unlock()
 		logrus.Infof("Adding write connection %s", n.Addr.String())
 		// We want to dial into the remote nodes listener port
-		conn, err := net.Dial("tcp", n.Addr.String()+":"+strconv.FormatInt(int64(cl.membershipConfig.ReceivePort), 10))
+		tcpAddr, err := net.ResolveTCPAddr("tcp", n.Addr.String()+":"+strconv.FormatInt(int64(cl.membershipConfig.ReceivePort), 10))
+		if err != nil {
+			logrus.Error(err)
+			// Error resolving addr - bail out?
+		}
+		conn, err := net.DialTCP("tcp", nil, tcpAddr)
 		if err != nil {
 			logrus.Error(err)
 			// Bail out?
