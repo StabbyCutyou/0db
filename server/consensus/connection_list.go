@@ -2,7 +2,6 @@ package consensus
 
 import (
 	"encoding/binary"
-	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/StabbyCutyou/0db/server/config"
 	"github.com/hashicorp/memberlist"
@@ -122,7 +121,7 @@ func (cl *ConnectionList) NotifyJoin(n *memberlist.Node) {
 		cl.Lock()
 		defer cl.Unlock()
 		logrus.Infof("Adding read connection %s", n.Addr.String())
-		conn, err := net.Dial("tcp", n.Addr.String()+":"+fmt.Sprintf("%s", n.Port))
+		conn, err := net.Dial("tcp", n.Addr.String()+":"+strconv.FormatInt(int64(n.Port), 10))
 		if err != nil {
 			logrus.Error(err)
 			// Bail out?

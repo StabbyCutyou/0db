@@ -130,6 +130,7 @@ func (s *Slaxos) joinCluster(address string) {
 	nodesFound, err := s.members.Join([]string{address})
 	if err != nil {
 		logrus.Errorf("Unable to join Cluster at address %s", address)
+		logrus.Error(err)
 	} else {
 		logrus.Infof("Joined cluster at %s, found %d other members", address, nodesFound)
 	}
