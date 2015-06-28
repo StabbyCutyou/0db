@@ -131,7 +131,8 @@ func (cl *ConnectionList) NotifyJoin(n *memberlist.Node) {
 		cl.Lock()
 		defer cl.Unlock()
 		logrus.Infof("Adding write connection %s", n.Addr.String())
-		conn, err := net.Dial("tcp", n.Addr.String()+":"+strconv.FormatInt(int64(n.Port), 10))
+		// We want to dial into the remote nodes listener port
+		conn, err := net.Dial("tcp", n.Addr.String()+":"+strconv.FormatInt(int64(cl.membershipConfig.ReceivePort), 10))
 		if err != nil {
 			logrus.Error(err)
 			// Bail out?
