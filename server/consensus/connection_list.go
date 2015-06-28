@@ -22,7 +22,7 @@ type ConnectionList struct {
 }
 
 func NewConnectionList(conf *config.MembershipConfig) *ConnectionList {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:"+strconv.Itoa(conf.ReceivePort))
+	tcpAddr, err := net.ResolveTCPAddr("tcp", ":"+strconv.Itoa(conf.ReceivePort))
 	if err != nil {
 		logrus.Error(err)
 		// Error resolving addr - bail out?
