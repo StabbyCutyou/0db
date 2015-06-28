@@ -76,7 +76,8 @@ func readFromConnection(reader net.Conn, buffer []byte) (int, error) {
 
 // TODO ported from splitter, needs work
 func handleReadConnection(conn net.Conn) {
-	headerBuffer := make([]byte, 4) // 4 is hardcoded for now, should be configurable
+	// Need to make this and the thing writing use a consistent value, right now it isn't
+	headerBuffer := make([]byte, 2) // 2 is hardcoded for now, should be configurable
 
 	for {
 		logrus.Debug("Begining Read")
