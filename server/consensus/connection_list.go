@@ -104,6 +104,7 @@ func handleReadConnection(conn net.Conn) {
 
 		if bytesLen > 0 && (err == nil || (err != nil && err.Error() == "EOF")) {
 			// We now have a message in the dataButter, we should handle it
+			logrus.Info("This is where i'd write")
 		}
 	}
 }
@@ -120,7 +121,7 @@ func (cl *ConnectionList) NotifyJoin(n *memberlist.Node) {
 		logrus.Info("NODE JOINED ", n)
 		cl.Lock()
 		defer cl.Unlock()
-		logrus.Infof("Adding read connection %s", n.Addr.String())
+		logrus.Infof("Adding write connection %s", n.Addr.String())
 		conn, err := net.Dial("tcp", n.Addr.String()+":"+strconv.FormatInt(int64(n.Port), 10))
 		if err != nil {
 			logrus.Error(err)
