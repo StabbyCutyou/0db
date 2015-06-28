@@ -113,8 +113,9 @@ func handleReadConnection(conn net.Conn) {
 				// Error decoding
 				logrus.Error("Error trying to unmarshall")
 				logrus.Error(err)
+			} else {
+				logrus.Info("This is where i'd write ", msg)
 			}
-			logrus.Info("This is where i'd write ", msg)
 		}
 	}
 }

@@ -221,8 +221,10 @@ func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) e
 func (s *Slaxos) readFromNode(nodeId uint64, key string) (string, error) {
 	// TODO this functionality should live in a dispacher...
 	// Get the address of the node
-	address := s.members.Members()[nodeId].Addr.String()
-	if address == "localhost" {
+	chosenNode := s.members.Members()[nodeId]
+	logrus.Debug("ADDR IS")
+	logrus.Debug(chosenNode.Addr.String())
+	if isLocalInterface(chosenNode.Addr.String()) {
 		// The local node owns it
 		cmd := exec.Command("cat", "/dev/null")
 		bytes, err := cmd.Output()
