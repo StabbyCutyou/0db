@@ -172,6 +172,8 @@ func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) e
 	// TODO this functionality should live in a dispacher...
 	// Get the address of the node
 	chosenNode := s.members.Members()[nodeId]
+	logrus.Debug("ADDR IS")
+	logrus.Debug(chosenNode.Addr.String())
 	if chosenNode.Addr.String() == "localhost" {
 		// The local node owns it
 		logrus.Debug("Writing to local storage")
@@ -191,13 +193,13 @@ func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) e
 		msgBytes, err := proto.Marshal(msg)
 		// TODO don't hardcode header size
 		toWriteLen := util.UInt16ToByteArray(uint16(len(msgBytes)), util.MessageSizeToBitLength(4096))
-		logrus.Error(msgBytes)
+		logrus.Info(msgBytes)
 		if err != nil {
 			return err
 		}
 		toWrite := append(toWriteLen, msgBytes...)
-		logrus.Error("ABOUT TO WRITE")
-		logrus.Error(toWrite)
+		logrus.Info("ABOUT TO WRITE")
+		logrus.Info(toWrite)
 		_, err = s.connectionList.dispatchConnections[chosenNode].Write(toWrite)
 		return err
 	}
