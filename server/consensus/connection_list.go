@@ -1,11 +1,8 @@
 package consensus
 
 import (
-	"encoding/binary"
 	"github.com/Sirupsen/logrus"
-	"github.com/StabbyCutyou/0db/message"
 	"github.com/StabbyCutyou/0db/server/config"
-	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/memberlist"
 	"net"
 	"os"
@@ -19,105 +16,6 @@ type ConnectionList struct {
 	receiveConnections  map[*memberlist.Node]net.Conn
 	membershipConfig    *config.MembershipConfig
 	receiveSocket       *net.TCPListener
-}
-
-func NewConnectionList(conf *config.MembershipConfig) *ConnectionList {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", ":"+strconv.Itoa(conf.ReceivePort))
-	if err != nil {
-		logrus.Error(err)
-		// Error resolving addr - bail out?
-	}
-	receiveSocket, err := net.ListenTCP("tcp", tcpAddr)
-	if err != nil {
-		logrus.Error(err)
-		// Error opening connection - bail out?
-	}
-	go startReceiveListener(receiveSocket)
-	return &ConnectionList{
-		dispatchConnections: make(map[*memberlist.Node]net.Conn),
-		receiveConnections:  make(map[*memberlist.Node]net.Conn),
-		membershipConfig:    conf,
-		receiveSocket:       receiveSocket,
-	}
-}
-
-func startReceiveListener(socket *net.TCPListener) {
-	for {
-		logrus.Debug("Awaiting for connection to Receive data on")
-
-		conn, err := socket.Accept()
-		if err != nil {
-			logrus.Error(err)
-		} else {
-			logrus.Debug("Accepted Connection...")
-			go handleReadConnection(conn)
-		}
-	}
-}
-
-// TODO ported from splitter, needs work
-func readFromConnection(reader net.Conn, buffer []byte) (int, error) {
-	bytesLen, err := reader.Read(buffer)
-	// Output the content of the bytes to the queue
-	if bytesLen == 0 {
-		if err != nil && err.Error() == "EOF" {
-			logrus.Error("End of individual transmission")
-			return bytesLen, err
-		}
-	}
-
-	if err != nil {
-		logrus.Error("Underlying network failure?")
-		logrus.Error(err)
-	}
-
-	return bytesLen, nil
-}
-
-// TODO ported from splitter, needs work
-func handleReadConnection(conn net.Conn) {
-	// Need to make this and the thing writing use a consistent value, right now it isn't
-	headerBuffer := make([]byte, 2) // 2 is hardcoded for now, should be configurable
-
-	for {
-		logrus.Debug("Begining Read")
-		// First, read the number of bytes required to determine the message length
-		_, err := readFromConnection(conn, headerBuffer)
-
-		if err != nil && err.Error() == "EOF" {
-			conn.Close()
-			break
-		}
-
-		msgLength, bytesParsed := binary.Uvarint(headerBuffer)
-		if bytesParsed == 0 {
-			logrus.Error("Buffer too small")
-			break
-		} else if bytesParsed < 0 {
-			logrus.Error("Buffer overflow")
-			break
-		}
-
-		dataBuffer := make([]byte, msgLength)
-		bytesLen, err := readFromConnection(conn, dataBuffer)
-		if err != nil && err.Error() == "EOF" {
-			conn.Close()
-			break
-		}
-
-		if bytesLen > 0 && (err == nil || (err != nil && err.Error() == "EOF")) {
-			// We now have a message in the dataButter, we should handle it
-			msg := &message.DistributedWrite{}
-			err := proto.Unmarshal(dataBuffer, msg)
-			if err != nil || msg == nil {
-				// Error decoding
-				logrus.Error("Error trying to unmarshall")
-				logrus.Error(err)
-			} else {
-				logrus.Info("This is where i'd write ", msg)
-			}
-		}
-	}
 }
 
 // When a new node joins the list, open a connection to/from it
