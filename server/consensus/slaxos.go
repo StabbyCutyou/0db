@@ -29,12 +29,15 @@ type ServerEntry struct {
 
 func NewSlaxos(cfg *config.MembershipConfig) *Slaxos {
 	buffManager := buffstreams.New()
-	s := Slaxos{
-		members:       newMemberlist(cfg),
+
+	s := &Slaxos{
 		buffManager:   buffManager,
 		consensusPort: cfg.ReceivePort,
 		adminPort:     cfg.AdminPort,
 	}
+	// TODO clean this up - this is ugly and I don't like it
+	memList := newMemberlist(cfg, s)
+	s.members = memList
 	// Listen for admin messages
 	logrus.Info("Starting listening for Admin connections...")
 	buffManager.StartListening(strconv.Itoa(cfg.AdminPort), s.adminListenerCallback)
@@ -42,7 +45,7 @@ func NewSlaxos(cfg *config.MembershipConfig) *Slaxos {
 	logrus.Info("Started listening for Cross-Node connections...")
 	buffManager.StartListening(strconv.Itoa(cfg.ReceivePort), s.crossNodeListenerCallback)
 	//s.startAdminListener(cfg.AdminPort)
-	return &s
+	return s
 }
 
 func (s *Slaxos) crossNodeListenerCallback(data []byte) error {
@@ -73,7 +76,7 @@ func (s *Slaxos) adminListenerCallback(data []byte) error {
 	return err
 }
 
-func newMemberlist(cfg *config.MembershipConfig) *memberlist.Memberlist {
+func newMemberlist(cfg *config.MembershipConfig, s *Slaxos) *memberlist.Memberlist {
 	mListCfg := memberlist.DefaultLANConfig()
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -86,7 +89,7 @@ func newMemberlist(cfg *config.MembershipConfig) *memberlist.Memberlist {
 	mListCfg.BindPort = cfg.MemberPort
 	// TODO replace the below with the new callback system, need new interface to handle invoking callbacks
 	//connList := NewConnectionList(cfg)
-	//mListCfg.Events = connList
+	mListCfg.Events = s
 
 	logrus.Info("Creating Membership Listener")
 	list, err := memberlist.Create(mListCfg)
