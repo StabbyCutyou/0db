@@ -29,6 +29,8 @@ func (ac *AdminClient) JoinCluster(address string) error {
 		logrus.Error(err)
 		return err
 	}
+	logrus.Debug("About to write")
+	logrus.Debug(msgBytes)
 	_, err = ac.buffManager.WriteTo("127.0.0.1", strconv.Itoa(ac.port), msgBytes, false)
 	if err != nil {
 		logrus.Error(err)

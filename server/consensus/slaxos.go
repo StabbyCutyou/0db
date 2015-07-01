@@ -44,7 +44,6 @@ func NewSlaxos(cfg *config.MembershipConfig) *Slaxos {
 	// Listen for cross-node messages
 	logrus.Info("Started listening for Cross-Node connections...")
 	buffManager.StartListening(strconv.Itoa(cfg.ReceivePort), s.crossNodeListenerCallback)
-	//s.startAdminListener(cfg.AdminPort)
 	return s
 }
 
@@ -200,7 +199,7 @@ func (s *Slaxos) writeToNode(nodeId uint64, key string, data string, ack bool) e
 		logrus.Info("ABOUT TO WRITE")
 		logrus.Info(msgBytes)
 		// Keep the connection open on each write
-		_, err = s.buffManager.WriteTo(chosenNode.Addr.String(), strconv.FormatInt(int64(chosenNode.Port), 10), msgBytes, true)
+		_, err = s.buffManager.WriteTo(chosenNode.Addr, strconv.FormatInt(int64(s.consensusPort), 10), msgBytes, true)
 		return err
 	}
 }
